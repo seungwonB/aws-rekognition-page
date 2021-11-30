@@ -20,6 +20,9 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
 
+    <!-- AWS -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+
     <title>인더 픽처</title>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -150,35 +153,89 @@
                 }
             });
         }
-
-
     </script>
 
+
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+        //Bucket Configurations
+        var bucketName = 'seungwonbucket1';
+        var bucketRegion = 'ap-northeast-2';
+        var IdentityPoolId = 'ap-northeast-2:9ab049a5-9ef5-4d03-ad3e-dc543c72f333';
+
+        AWS.config.update({
+            region: bucketRegion,
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: IdentityPoolId
+            })
+        });
+
+        var s3 = new AWS.S3({
+            apiVersion: '2006-03-01',
+            params: {Bucket: bucketName}
+        });
+    </script>
+    <script type="text/javascript">
+        function s3upload() {
+            var files = document.getElementById('cameraFileInput').files;
+            if (files) {
+                var file = files[0];
+                var fileName = file.name;
+                var filePath = 'my-first-bucket-path/' + fileName;
+                var fileUrl = 'https://' + bucketRegion + '.amazonaws.com/my-first-bucket/' + filePath;
+                s3.upload({
+                    Key: filePath,
+                    Body: file,
+                    ACL: 'public-read'
+                }, function (err, data) {
+                    if (err) {
+                        reject('error');
+                    }
+                    alert('Successfully Uploaded!');
+                }).on('httpUploadProgress', function (progress) {
+                    var uploaded = parseInt((progress.loaded * 100) / progress.total);
+                    $("progress").attr('value', uploaded);
+                });
+            }
+        };
+    </script>
 </head>
 
 <body>
 <div class="container">
-<div class="container camera">
-    <label for="cameraFileInput">
-        <div class="btn_div">
-            <span class="btn_camera">인물</span>
-        </div>
-        <input type="file" id="cameraFileInput" accept="image/" capture="environment" />
-    </label>
-    <img id="pictureFromCamera" />
-    <script>
-        var camera = document.getElementById('cameraFileInput');
-        var frame = document.getElementById('pictureFromCamera');
+    <div class="container camera">
+        {#        <label for="cameraFileInput">#}
+        {#            <div class="btn_div">#}
+        {#                <span class="btn_camera">인물</span>#}
+        {#            </div>#}
+        {#            <input type="file" id="cameraFileInput" accept="image/" capture="environment"/>#}
+        {#        </label>#}
+        {#        <img id="pictureFromCamera"/>#}
+        {#        <script>#}
+        {#            var camera = document.getElementById('cameraFileInput');#}
+        {#            var frame = document.getElementById('pictureFromCamera');#}
+        {##}
+        {#            camera.addEventListener('change', function (e) {#}
+        {#                var file = e.target.files[0];#}
+        {#                frame.src = URL.createObjectURL(file);#}
+        {#            });#}
+        {#        </script>#}
+        {#        <button onclick="posting()" type="button" class="btn btn-primary">알려주세요</button>#}
+        <label for="cameraFileInput">
+            <!-- 사진촬영 -->
+            <div class="btn_div">
+                <span class="btn_camera">인물</span>
+            </div>
+            <input type="file" id="cameraFileInput" accept="image/" capture="environment">
+            <!-- 업로드 버튼 -->
+            <div>
+                <button onclick="s3upload()">Submit</button>
+            </div>
+        </label>
+        {#        <progress max=”100” value=”0”></progress>#}
+    </div>
 
-        camera.addEventListener('change', function (e){
-            var file = e.target.files[0];
-            frame.src = URL.createObjectURL(file);
-        });
-    </script>
-    <button onclick="posting()" type="button" class="btn btn-primary">알려주세요</button>
-    <div>안녕하세요? {{ accid }}</div>
-</div>
 </div>
 </body>
-
 </html>
