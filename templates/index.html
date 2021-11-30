@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+
+    <title>인더 픽처</title>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Jua', sans-serif;
+        }
+
+        .posting-box {
+            width: 500px;
+            margin-top: 20px;
+        }
+
+        .container {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            margin: 0px auto;
+            max-width: 400px;
+            padding: 0vh 16px;
+            padding-top: 10px;
+        }
+
+        .btn_div {
+            border-radius: 10px;
+            position: relative;
+            width: 70vw;
+            height: 20vh;
+            background-color: black;
+            display: table;
+            margin-top: 20px;
+        }
+
+        .btn_camera:hover {
+            color: black;
+            transition: color 0.3s;
+            font-size: 4.2em;
+            text-shadow: 2px 2px 2px gray;
+        }
+
+        .btn_camera {
+            background-color: #00b531;
+            color: white;
+            width: 70vw;
+            height: 20vh;
+            border-radius: 6px;
+            font-size: 4em;
+            text-align: center;
+            vertical-align: middle;
+            display: table-cell;
+            font-weight: bold;
+        }
+
+        #cameraFileInput {
+            display: none;
+        }
+
+        #pictureFromCamera {
+            width: 300px;
+            margin-top: 16px;
+        }
+
+        .posting-box > .custom-file {
+            margin-bottom: 20px;
+        }
+
+    </style>
+    <script>
+        $(document).ready(function () {
+            bsCustomFileInput.init()
+            listing()
+        })
+
+        function listing() {
+            $.ajax({
+                type: "GET",
+                url: "/diary",
+                data: {},
+                success: function (response) {
+                    let diaries = response['all_diary']
+                    for (let i = 0; i < diaries.length; i++) {
+                        let title = diaries[i]['title']
+                        let content = diaries[i]['content']
+                        let file = diaries[i]['file']
+                        let time = diaries[i]['time']
+
+                        let temp_html = `<div class="card">
+                                            <img src="../static/${file}" class="card-img-top">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${title}</h5>
+                                                <p class="card-text">${content}</p>
+                                                <p class="card-time" style="color:gray; font-size:10px;">${time}</p>
+                                            </div>
+                                        </div>`
+                        $('#cards-box').append(temp_html)
+                    }
+                }
+            })
+        }
+
+        function posting() {
+            let title = $('#cameraFileInput').val()
+            let content = $("#content").val()
+
+            let file = $('#cameraFileInput')[0].files[0]
+            let form_data = new FormData()
+
+            form_data.append("file_give", file)
+            form_data.append("title_give", title)
+            form_data.append("content_give", content)
+
+            $.ajax({
+                type: "POST",
+                url: "/diary",
+                data: form_data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response["msg"])
+                    window.location.reload()
+                }
+            });
+        }
+
+
+    </script>
+
+</head>
+
+<body>
+<div class="container">
+<div class="container camera">
+    <label for="cameraFileInput">
+        <div class="btn_div">
+            <span class="btn_camera">인물</span>
+        </div>
+        <input type="file" id="cameraFileInput" accept="image/" capture="environment" />
+    </label>
+    <img id="pictureFromCamera" />
+    <script>
+        var camera = document.getElementById('cameraFileInput');
+        var frame = document.getElementById('pictureFromCamera');
+
+        camera.addEventListener('change', function (e){
+            var file = e.target.files[0];
+            frame.src = URL.createObjectURL(file);
+        });
+    </script>
+    <button onclick="posting()" type="button" class="btn btn-primary">알려주세요</button>
+    <div>안녕하세요? {{ accid }}</div>
+</div>
+</div>
+</body>
+
+</html>
