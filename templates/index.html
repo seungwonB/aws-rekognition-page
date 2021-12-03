@@ -20,23 +20,16 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
 
-    {#    <!-- AWS -->#}
-    {#    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>#}
-
     <title>인더 픽처</title>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+{#    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">#}
     <style>
         * {
             font-family: 'Jua', sans-serif;
         }
 
-        .posting-box {
-            width: 500px;
-            margin-top: 20px;
-        }
 
         .container {
             background-color: white;
@@ -201,12 +194,39 @@
                     if (err) {
                         reject('error');
                     }
-                    alert('Successfully Uploaded!');
+                    {#alert('Successfully Uploaded!');#}
                 }).on('httpUploadProgress', function (progress) {
                     var uploaded = parseInt((progress.loaded * 100) / progress.total);
                     $("progress").attr('value', uploaded);
                 });
             }
+
+            let bucketName = 'seungwonbucket1'
+            {#let files = document.getElementById('cameraFileInput').files;#}
+            {#let file = files[0];#}
+            {#let fileName = file.name;#}
+            {#let filePath = fileName;#}
+
+            {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
+
+            {#let file = $('#cameraFileInput')[0].files[0]#}
+            let form_data = new FormData()
+            {#form_data.append("content_give", content)#}
+            form_data.append("content_give", filePath)
+            form_data.append("file_give", bucketName)
+
+            $.ajax({
+                type: "POST",
+                url: "/reko",
+                data: form_data,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response["msg"])
+                    {#window.location.reload()#}
+                }
+            });
         };
 
     </script>
