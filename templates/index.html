@@ -1,7 +1,10 @@
 <!doctype html>
 <html lang="en">
 
-<head>
+<head profile="http://www.w3.org/2005/10/profile">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -24,7 +27,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-{#    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">#}
+    {#
+    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+    #}
     <style>
         * {
             font-family: 'Jua', sans-serif;
@@ -93,6 +98,10 @@
             width: 200px;
             height: 10vh;
         }
+
+        #audio {
+            display: none;
+        }
     </style>
     <script>
         $(document).ready(function () {
@@ -134,11 +143,11 @@
             let fileName = file.name;
             let filePath = fileName;
 
-            {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
+            // {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
 
-            {#let file = $('#cameraFileInput')[0].files[0]#}
+            // {#let file = $('#cameraFileInput')[0].files[0]#}
             let form_data = new FormData()
-            {#form_data.append("content_give", content)#}
+            // {#form_data.append("content_give", content)#}
             form_data.append("content_give", filePath)
             form_data.append("file_give", bucketName)
 
@@ -151,7 +160,7 @@
                 processData: false,
                 success: function (response) {
                     alert(response["msg"])
-                    {#window.location.reload()#}
+                    // {#window.location.reload()#}
                 }
             });
         }
@@ -194,7 +203,7 @@
                     if (err) {
                         reject('error');
                     }
-                    {#alert('Successfully Uploaded!');#}
+                    // {#alert('Successfully Uploaded!');#}
                 }).on('httpUploadProgress', function (progress) {
                     var uploaded = parseInt((progress.loaded * 100) / progress.total);
                     $("progress").attr('value', uploaded);
@@ -202,16 +211,16 @@
             }
 
             let bucketName = 'seungwonbucket1'
-            {#let files = document.getElementById('cameraFileInput').files;#}
-            {#let file = files[0];#}
-            {#let fileName = file.name;#}
-            {#let filePath = fileName;#}
+            // {#let files = document.getElementById('cameraFileInput').files;#}
+            // {#let file = files[0];#}
+            // {#let fileName = file.name;#}
+            // {#let filePath = fileName;#}
 
-            {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
+            // {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
 
-            {#let file = $('#cameraFileInput')[0].files[0]#}
+            // {#let file = $('#cameraFileInput')[0].files[0]#}
             let form_data = new FormData()
-            {#form_data.append("content_give", content)#}
+            // {#form_data.append("content_give", content)#}
             form_data.append("content_give", filePath)
             form_data.append("file_give", bucketName)
 
@@ -223,35 +232,25 @@
                 contentType: false,
                 processData: false,
                 success: function (response) {
-                    alert(response["msg"])
-                    {#window.location.reload()#}
+                    let res = response['msg'];
+                    // let res2 = response['msg2'];
+                    let temp_html = `<div>${res}</div>`
+                    // let textEntry = document.getElementById('textEntry').val();
+                    // console.log(textEntry);
+                    $('#resultText').append(temp_html)
+                    $('#textEntry').val(res);
+                    // alert(response["msg"])
+                    // {#window.location.reload()#}
                 }
             });
         };
-
     </script>
+
 </head>
 
 <body>
 <div class="container">
     <div class="container camera">
-        {#        <label for="cameraFileInput">#}
-        {#            <div class="btn_div">#}
-        {#                <span class="btn_camera">인물</span>#}
-        {#            </div>#}
-        {#            <input type="file" id="cameraFileInput" accept="image/" capture="environment"/>#}
-        {#        </label>#}
-        {#        <img id="pictureFromCamera"/>#}
-        {#        <script>#}
-        {#            var camera = document.getElementById('cameraFileInput');#}
-        {#            var frame = document.getElementById('pictureFromCamera');#}
-        {##}
-        {#            camera.addEventListener('change', function (e) {#}
-        {#                var file = e.target.files[0];#}
-        {#                frame.src = URL.createObjectURL(file);#}
-        {#            });#}
-        {#        </script>#}
-        {#        <button onclick="posting()" type="button" class="btn btn-primary">알려주세요</button>#}
         <label for="cameraFileInput">
             <!-- 사진촬영 -->
             <div class="btn_div">
@@ -259,7 +258,7 @@
             </div>
             <input type="file" id="cameraFileInput" accept="image/" capture="environment">
         </label>
-
+        <div id="resultText"></div>
         <img id="pictureFromCamera"/>
         <script>
             var camera = document.getElementById('cameraFileInput');
@@ -273,13 +272,55 @@
 
         <!-- 업로드 버튼 -->
         <p></p>
-
         <button onclick="s3upload()" id="s3upload">분석하기v1</button>
         <p></p>
-        <button onclick="getText()" id="s3upload">텍스트 추출v1</button>
-        <div id="zz"></div>
+        <!--Polly-->
+        <div id="textToSynth">
+            <input autofocus size="23" type="text" id="textEntry" value="안녕"/>
+            <button class="btn default" onClick="speakText()">Synthesize</button>
+            <p id="result">Enter text above then click Synthesize</p>
+        </div>
+        <audio id="audioPlayback" autoplay>
+            <source id="audioSource" type="audio/mp3" src="">
+        </audio>
+        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.410.0.min.js"></script>
+        <script type="text/javascript">
 
+            // Initialize the Amazon Cognito credentials provider
+            AWS.config.region = 'ap-northeast-2';
+            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+                {IdentityPoolId: 'ap-northeast-2:f14709fa-69d5-4a7c-b80a-188591d81cba'});
+
+            // Function invoked by button click
+            function speakText() {
+                // Create the JSON parameters for getSynthesizeSpeechUrl
+                var speechParams = {
+                    OutputFormat: "mp3",
+                    SampleRate: "16000",
+                    Text: "",
+                    TextType: "text",
+                    VoiceId: "Seoyeon"
+                };
+                speechParams.Text = document.getElementById("textEntry").value;
+
+                // Create the Polly service object and presigner object
+                var polly = new AWS.Polly({apiVersion: '2016-06-10'});
+                var signer = new AWS.Polly.Presigner(speechParams, polly)
+
+                // Create presigned URL of synthesized speech file
+                signer.getSynthesizeSpeechUrl(speechParams, function (error, url) {
+                    if (error) {
+                        document.getElementById('result').innerHTML = error;
+                    } else {
+                        document.getElementById('audioSource').src = url;
+                        document.getElementById('audioPlayback').load();
+                        document.getElementById('result').innerHTML = "Speech ready to play.";
+                    }
+                });
+            }
+        </script>
     </div>
 </div>
+
 </body>
 </html>
