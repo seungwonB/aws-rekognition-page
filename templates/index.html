@@ -1,10 +1,7 @@
 <!doctype html>
 <html lang="en">
 
-<head profile="http://www.w3.org/2005/10/profile">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,18 +20,15 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
 
-    <title>인더 픽처</title>
+    <title>프롬 더 픽처</title>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {#
-    <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
-    #}
+
     <style>
         * {
             font-family: 'Jua', sans-serif;
         }
-
 
         .container {
             background-color: white;
@@ -48,6 +42,7 @@
             max-width: 400px;
             padding: 0vh 16px;
             padding-top: 10px;
+            margin-bottom: 200px;
         }
 
         .btn_div {
@@ -89,83 +84,21 @@
             margin-top: 16px;
         }
 
-        .posting-box > .custom-file {
-            margin-bottom: 20px;
-        }
-
-        #s3upload {
+        #s3upload, #s3upload2 {
             font-size: 2.0em;
             width: 200px;
             height: 10vh;
-        }
-
-        #audio {
-            display: none;
         }
     </style>
     <script>
         $(document).ready(function () {
             bsCustomFileInput.init()
-            listing()
+            // listing()
+            setTimeout(function () {
+                speakText(3);
+            }, 1000);
         })
-
-        function listing() {
-            $.ajax({
-                type: "GET",
-                url: "/diary",
-                data: {},
-                success: function (response) {
-                    let diaries = response['all_diary']
-                    for (let i = 0; i < diaries.length; i++) {
-                        let title = diaries[i]['title']
-                        let content = diaries[i]['content']
-                        let file = diaries[i]['file']
-                        let time = diaries[i]['time']
-
-                        let temp_html = `<div class="card">
-                                            <img src="../static/${file}" class="card-img-top">
-                                            <div class="card-body">
-                                                <h5 class="card-title">${title}</h5>
-                                                <p class="card-text">${content}</p>
-                                                <p class="card-time" style="color:gray; font-size:10px;">${time}</p>
-                                            </div>
-                                        </div>`
-                        $('#cards-box').append(temp_html)
-                    }
-                }
-            })
-        }
-
-        function getText() {
-            let bucketName = 'seungwonbucket1'
-            let files = document.getElementById('cameraFileInput').files;
-            let file = files[0];
-            let fileName = file.name;
-            let filePath = fileName;
-
-            // {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
-
-            // {#let file = $('#cameraFileInput')[0].files[0]#}
-            let form_data = new FormData()
-            // {#form_data.append("content_give", content)#}
-            form_data.append("content_give", filePath)
-            form_data.append("file_give", bucketName)
-
-            $.ajax({
-                type: "POST",
-                url: "/reko",
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    alert(response["msg"])
-                    // {#window.location.reload()#}
-                }
-            });
-        }
     </script>
-
 
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1.24.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
@@ -203,97 +136,81 @@
                     if (err) {
                         reject('error');
                     }
-                    // {#alert('Successfully Uploaded!');#}
-                }).on('httpUploadProgress', function (progress) {
-                    var uploaded = parseInt((progress.loaded * 100) / progress.total);
-                    $("progress").attr('value', uploaded);
-                });
+                    // alert('분석 완료!');
+                    let bucketName = 'seungwonbucket1'
+                    let form_data = new FormData()
+                    form_data.append("content_give", filePath)
+                    form_data.append("file_give", bucketName)
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/reko",
+                        data: form_data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            let res = response['msg'];
+
+                            $('#textEntry').val(res);
+                        }
+                    });
+                })
             }
-
-            let bucketName = 'seungwonbucket1'
-            // {#let files = document.getElementById('cameraFileInput').files;#}
-            // {#let file = files[0];#}
-            // {#let fileName = file.name;#}
-            // {#let filePath = fileName;#}
-
-            // {#let fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;#}
-
-            // {#let file = $('#cameraFileInput')[0].files[0]#}
-            let form_data = new FormData()
-            // {#form_data.append("content_give", content)#}
-            form_data.append("content_give", filePath)
-            form_data.append("file_give", bucketName)
-
-            $.ajax({
-                type: "POST",
-                url: "/reko",
-                data: form_data,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    let res = response['msg'];
-                    // let res2 = response['msg2'];
-                    let temp_html = `<div>${res}</div>`
-                    // let textEntry = document.getElementById('textEntry').val();
-                    // console.log(textEntry);
-                    $('#resultText').append(temp_html)
-                    $('#textEntry').val(res);
-                    // alert(response["msg"])
-                    // {#window.location.reload()#}
-                }
-            });
         };
+
+        function s3upload2() {
+            var files = document.getElementById('cameraFileInput').files;
+            if (files) {
+                var file = files[0];
+                var fileName = file.name;
+                var filePath = fileName;
+                var fileUrl = 'https://' + bucketRegion + '.amazonaws.com/' + filePath;
+                s3.upload({
+                    Key: filePath,
+                    Body: file,
+                    ACL: 'public-read'
+                }, function (err, data) {
+                    if (err) {
+                        reject('error');
+                    }
+                    // alert('분석 완료!');
+                    let bucketName = 'seungwonbucket1'
+                    let form_data = new FormData()
+                    form_data.append("content_give", filePath)
+                    form_data.append("file_give", bucketName)
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/reko_text",
+                        data: form_data,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        success: function (response) {
+                            let res_text = response['msg'];
+                            $('#textEntry').val(res_text);
+                        }
+                    });
+                })
+            }
+        };
+
     </script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.410.0.min.js"></script>
+    <script type="text/javascript">
 
-</head>
+        // Initialize the Amazon Cognito credentials provider
+        AWS.config.region = 'ap-northeast-2';
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials(
+            {IdentityPoolId: 'ap-northeast-2:f14709fa-69d5-4a7c-b80a-188591d81cba'});
 
-<body>
-<div class="container">
-    <div class="container camera">
-        <label for="cameraFileInput">
-            <!-- 사진촬영 -->
-            <div class="btn_div">
-                <span class="btn_camera">인물</span>
-            </div>
-            <input type="file" id="cameraFileInput" accept="image/" capture="environment">
-        </label>
-        <div id="resultText"></div>
-        <img id="pictureFromCamera"/>
-        <script>
-            var camera = document.getElementById('cameraFileInput');
-            var frame = document.getElementById('pictureFromCamera');
+        // Function invoked by button click
+        function speakText(sleep) {
 
-            camera.addEventListener('change', function (e) {
-                var file = e.target.files[0];
-                frame.src = URL.createObjectURL(file);
-            });
-        </script>
-
-        <!-- 업로드 버튼 -->
-        <p></p>
-        <button onclick="s3upload()" id="s3upload">분석하기v1</button>
-        <p></p>
-        <!--Polly-->
-        <div id="textToSynth">
-            <input autofocus size="23" type="text" id="textEntry" value="안녕"/>
-            <button class="btn default" onClick="speakText()">Synthesize</button>
-            <p id="result">Enter text above then click Synthesize</p>
-        </div>
-        <audio id="audioPlayback" autoplay>
-            <source id="audioSource" type="audio/mp3" src="">
-        </audio>
-        <script src="https://sdk.amazonaws.com/js/aws-sdk-2.410.0.min.js"></script>
-        <script type="text/javascript">
-
-            // Initialize the Amazon Cognito credentials provider
-            AWS.config.region = 'ap-northeast-2';
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials(
-                {IdentityPoolId: 'ap-northeast-2:f14709fa-69d5-4a7c-b80a-188591d81cba'});
-
-            // Function invoked by button click
-            function speakText() {
+            function speakL() {
                 // Create the JSON parameters for getSynthesizeSpeechUrl
+
                 var speechParams = {
                     OutputFormat: "mp3",
                     SampleRate: "16000",
@@ -312,15 +229,71 @@
                     if (error) {
                         document.getElementById('result').innerHTML = error;
                     } else {
-                        document.getElementById('audioSource').src = url;
-                        document.getElementById('audioPlayback').load();
-                        document.getElementById('result').innerHTML = "Speech ready to play.";
+                        if (sleep == 3) {
+                            document.getElementById('infoSource').src = url;
+                            document.getElementById('info').load();
+                        } else {
+                            document.getElementById('audioSource').src = url;
+                            document.getElementById('audioPlayback').load();
+                        }
+                        // document.getElementById('result').innerHTML = "Speech ready to play.";
                     }
                 });
             }
+
+            if (sleep == 1) {
+                setTimeout(speakL, 8000);
+            } else {
+                speakL();
+            }
+
+            document.getElementById("textEntry").value = null;
+
+        }
+    </script>
+</head>
+
+<body>
+<div class="container">
+    <!-- 시작안내 말 -->
+    <audio id="info" autoplay>
+        <source id="infoSource" type="audio/mp3" src="">
+    </audio>
+    <div class="container camera">
+        <!-- 사진촬영 -->
+        <label for="cameraFileInput">
+            <div class="btn_div">
+                <span class="btn_camera">촬영</span>
+            </div>
+            <input type="file" id="cameraFileInput" accept="image/" capture="environment">
+        </label>
+
+        <!-- 분석 메시지 출력-->
+        <div id="textToSynth">
+            <textarea cols="35" id="textEntry">촬영버튼을 클릭하여 사진을 찍으시고 인물, 글자 버튼 중 하나를 클릭하고 잠시만 기다려주세요.</textarea>
+        </div>
+        <audio id="audioPlayback" autoplay>
+            <source id="audioSource" type="audio/mp3" src="">
+        </audio>
+
+        <!-- 찍은 사진 출력-->
+        <img id="pictureFromCamera"/>
+        <script>
+            var camera = document.getElementById('cameraFileInput');
+            var frame = document.getElementById('pictureFromCamera');
+
+            camera.addEventListener('change', function (e) {
+                var file = e.target.files[0];
+                frame.src = URL.createObjectURL(file);
+            });
         </script>
+        <p></p>
+
+        <!-- 업로드 버튼 -->
+        <button onclick="s3upload();speakText(1)" id="s3upload">인물</button>
+        <p></p>
+        <button onclick="s3upload2();speakText(1)" id="s3upload2">글자</button>
     </div>
 </div>
-
 </body>
 </html>
