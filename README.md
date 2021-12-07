@@ -16,7 +16,7 @@
 - 사용자가 웹상에서 사진을 찍으면 그 사진을 S3에 bucket에 올린다. 사진을 Rekognition을 이용하여 분석한 후 Polly를 사용하여 웹상에서 출력해준다.
 - JS와 Flask로 웹페이지를 제작하였다. AWS EC2를 이용하여 배포를 하였다. (FileZila와 Git bash 활용)
 - AWS의 Machine Learning 서비스인 Rekognition을 활용하였다. Python의 boto3를 이용하여 구현하였다. 영어 번역을 위해서는 Translate을 사용하였다.
-- Rekognition을 활용하여 얻은 Request를 문장으로 재조합하였다.
+- Rekognition을 활용하여 얻은 Response를 문장으로 재조합하였다.
 - 그렇게 생긴 문장을 서버에서 받아 웹에 반환해주었다. 반환받은 문장은 웹에서 바로 AWS Polly를 활용하여 음성으로 추출되었다.
 <br/> 
 
